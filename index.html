@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La Drôlerie | Jouets Traditionnels & IA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&family=Nunito:wght@800;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Quicksand', sans-serif; background-color: #FDFCFB; scroll-behavior: smooth; }
+        h1, h2, h3, .font-title { font-family: 'Nunito', sans-serif; }
+        .bg-marine { background-color: #0F172A; }
+        .bg-solaire { background-color: #FDE047; }
+        .text-marine { color: #0F172A; }
+        .crown-shadow { filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
+        
+        .cat-card:hover img { transform: scale(1.1); }
+        .cat-card img { transition: transform 0.3s ease; }
+
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.4); }
+            100% { transform: scale(1); }
+        }
+        .cart-pop { animation: pop 0.3s ease-out; }
+
+        /* Styles pour le chat IA */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <!-- Modal Conseiller IA -->
+    <div id="ai-modal" class="fixed inset-0 z-[200] hidden flex items-center justify-center p-4 bg-marine/60 backdrop-blur-sm">
+        <div class="glass-panel w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[80vh]">
+            <div class="p-8 border-b border-slate-100 flex justify-between items-center">
+                <div>
+                    <h3 class="text-2xl font-black text-marine uppercase">Le Conseiller Magique ✨</h3>
+                    <p class="text-xs text-slate-500 font-bold uppercase tracking-widest mt-1">Propulsé par Gemini</p>
+                </div>
+                <button onclick="toggleAIModal()" class="text-slate-400 hover:text-marine text-2xl">×</button>
+            </div>
+            <div id="ai-content" class="p-8 overflow-y-auto space-y-4">
+                <p class="text-slate-600 leading-relaxed">Bonjour ! Je suis l'assistant de La Drôlerie. Quel type de cadeau cherchez-vous aujourd'hui ? (Indiquez l'âge et les goûts de l'enfant)</p>
+            </div>
+            <div class="p-6 bg-slate-50 border-t border-slate-100">
+                <div class="flex gap-2">
+                    <input type="text" id="ai-input" placeholder="Ex: Un cadeau pour un garçon de 4 ans qui aime l'espace..." class="flex-1 px-5 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-yellow-400">
+                    <button onclick="askGemini()" id="ai-send-btn" class="bg-marine text-white px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-slate-800 transition">
+                        Envoyer ✨
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notif" class="fixed top-24 right-6 z-[100] transform translate-x-80 transition-transform duration-500">
+        <div class="bg-marine text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center space-x-3 border border-yellow-400/30">
+            <span class="text-solaire">★</span>
+            <span class="text-xs font-bold uppercase tracking-widest">Ajouté au panier</span>
+        </div>
+    </div>
+
+    <!-- Bandeau Promo -->
+    <div class="bg-marine text-yellow-200 py-2.5 text-center text-[10px] md:text-[11px] font-bold uppercase tracking-[0.2em] px-4">
+        📦 Livraison offerte dès 60€ | 🧸 Satisfait ou Échangé sous 30 jours
+    </div>
+
+    <!-- Header -->
+    <header class="bg-white border-b border-slate-100 sticky top-0 z-50 shadow-sm">
+        <div class="container mx-auto px-4 md:px-8 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="window.scrollTo(0,0)">
+                <svg width="42" height="38" viewBox="0 0 100 80" fill="none" class="crown-shadow">
+                    <path d="M15 65L10 25L35 45L50 10L65 45L90 25L85 65H15Z" fill="#FDE047" stroke="#0F172A" stroke-width="5" stroke-linejoin="round"/>
+                    <path d="M20 75H80" stroke="#0F172A" stroke-width="6" stroke-linecap="round"/>
+                </svg>
+                <div class="flex flex-col">
+                    <span class="text-xl md:text-2xl font-black text-slate-900 uppercase leading-none tracking-tight">La Drôlerie</span>
+                    <span class="text-[9px] uppercase tracking-[0.3em] text-yellow-600 font-extrabold">Maison de Jouets</span>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <button onclick="toggleAIModal()" class="hidden md:flex items-center space-x-2 bg-yellow-50 text-yellow-700 px-4 py-2 rounded-full border border-yellow-200 hover:bg-yellow-100 transition font-bold text-[10px] uppercase tracking-widest">
+                    <span>Conseiller Magique ✨</span>
+                </button>
+                <button class="relative flex items-center space-x-3 bg-slate-50 px-5 py-2.5 rounded-full border border-slate-100 hover:bg-white transition shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+                    <span id="cart-count" class="bg-marine text-white text-[10px] font-bold px-2 py-0.5 rounded-full">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="relative bg-marine py-16 md:py-24 overflow-hidden">
+        <div class="container mx-auto px-6 md:px-12 relative z-10 flex flex-col md:flex-row items-center">
+            <div class="md:w-1/2 mb-12 md:mb-0">
+                <span class="inline-block bg-yellow-400/20 text-yellow-300 text-[10px] font-bold px-4 py-1.5 rounded-full uppercase tracking-widest mb-6 border border-yellow-400/30">Intelligence Artisanale</span>
+                <h1 class="text-5xl md:text-7xl font-black text-white leading-[0.95] uppercase mb-8">
+                    Le Beau,<br><span class="text-yellow-300 italic font-light lowercase">pour</span> Grandir.
+                </h1>
+                <p class="text-slate-300 max-w-md mb-10 text-lg leading-relaxed">
+                    Une sélection exigeante et un conseiller intelligent pour trouver le cadeau parfait en un clin d'œil.
+                </p>
+                <div class="flex space-x-4">
+                    <a href="#catalogue" class="inline-block bg-solaire text-slate-900 px-10 py-5 rounded-2xl font-black uppercase text-xs tracking-widest hover:scale-105 transition shadow-2xl">
+                        Boutique
+                    </a>
+                    <button onclick="toggleAIModal()" class="inline-block bg-white/10 text-white border border-white/20 px-8 py-5 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-white/20 transition">
+                        Conseil IA ✨
+                    </button>
+                </div>
+            </div>
+            <div class="md:w-1/2 flex justify-center relative">
+                <img src="https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?auto=format&fit=crop&q=80&w=800" class="relative z-10 rounded-[3rem] shadow-2xl transform rotate-3 w-4/5 border-8 border-white/5">
+            </div>
+        </div>
+    </section>
+
+    <!-- Catalogue -->
+    <section id="catalogue" class="container mx-auto py-24 px-6">
+        <div class="flex flex-col md:flex-row items-end justify-between mb-16 gap-4">
+            <div>
+                <h2 class="text-4xl font-black text-marine uppercase tracking-tight">Notre Sélection</h2>
+                <p class="text-slate-400 mt-2 font-medium">Laissez l'IA vous raconter une histoire pour chaque jouet.</p>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10" id="product-list">
+            <!-- Injecté par JS -->
+        </div>
+    </section>
+
+    <footer class="bg-marine py-20 text-center text-slate-500">
+        <p class="text-[10px] font-bold uppercase tracking-[0.4em]">© 2024 La Drôlerie Paris — Propulsé par l'Imagination ✨</p>
+    </footer>
+
+    <script>
+        const apiKey = ""; // Géré par l'environnement
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'la-drolerie';
+
+        const toys = [
+            { id: 1, name: "Robot Articulé", price: 42, age: "3-6 ans", img: "https://images.unsplash.com/photo-1545558014-8692077e9b5c?auto=format&fit=crop&q=80&w=800", cat: "Jouet Bois" },
+            { id: 2, name: "Petit Train Pastel", price: 55, age: "18 mois +", img: "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?auto=format&fit=crop&q=80&w=800", cat: "Éveil" },
+            { id: 3, name: "Puzzle Forêt", price: 28, age: "4 ans +", img: "https://images.unsplash.com/photo-1618842676088-c4d48a6a7c9d?auto=format&fit=crop&q=80&w=800", cat: "Jeux Société" },
+            { id: 4, name: "Labyrinthe Perles", price: 34, age: "12 mois +", img: "https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?auto=format&fit=crop&q=80&w=800", cat: "Éveil" }
+        ];
+
+        let cart = 0;
+
+        function toggleAIModal() {
+            const modal = document.getElementById('ai-modal');
+            modal.classList.toggle('hidden');
+        }
+
+        async function fetchGemini(prompt, systemInstruction = "") {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }],
+                systemInstruction: { parts: [{ text: systemInstruction }] }
+            };
+
+            for (let i = 0; i < 5; i++) {
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        body: JSON.stringify(payload)
+                    });
+                    const data = await response.json();
+                    return data.candidates?.[0]?.content?.parts?.[0]?.text;
+                } catch (e) {
+                    await new Promise(r => setTimeout(r, Math.pow(2, i) * 1000));
+                }
+            }
+            return "Désolé, la magie est un peu fatiguée. Réessayez bientôt !";
+        }
+
+        async function askGemini() {
+            const input = document.getElementById('ai-input');
+            const content = document.getElementById('ai-content');
+            const btn = document.getElementById('ai-send-btn');
+            
+            if (!input.value) return;
+
+            const userText = input.value;
+            input.value = "";
+            content.innerHTML += `<div class="bg-yellow-50 p-4 rounded-2xl text-sm self-end text-marine font-bold">Vous : ${userText}</div>`;
+            
+            btn.disabled = true;
+            btn.innerText = "Réflexion... ✨";
+
+            const systemPrompt = `Tu es l'assistant expert de "La Drôlerie", une boutique de jouets haut de gamme style "Bonhomme de Bois". 
+            Voici notre catalogue actuel : ${JSON.stringify(toys)}.
+            Réponds de manière chaleureuse, courte et suggère un jouet spécifique de notre liste si possible.
+            Utilise un ton enchanteur.`;
+
+            const response = await fetchGemini(userText, systemPrompt);
+            
+            content.innerHTML += `<div class="bg-slate-100 p-4 rounded-2xl text-sm text-slate-700 leading-relaxed">Magie : ${response}</div>`;
+            content.scrollTop = content.scrollHeight;
+            
+            btn.disabled = false;
+            btn.innerText = "Envoyer ✨";
+        }
+
+        async function generateStory(toyName) {
+            const btn = event.currentTarget;
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = "Écriture ✨";
+
+            const prompt = `Écris une très courte histoire (3 phrases max) pour un enfant à propos du jouet "${toyName}". L'histoire doit être féerique et se terminer par une morale joyeuse.`;
+            const story = await fetchGemini(prompt, "Tu es un conteur d'histoires pour enfants talentueux.");
+
+            // Affichage dans une bulle temporaire
+            const storyDiv = document.createElement('div');
+            storyDiv.className = "absolute inset-0 bg-white/95 p-6 flex flex-col items-center justify-center text-center text-xs italic leading-relaxed z-20 rounded-[1.5rem] animate-fade-in";
+            storyDiv.innerHTML = `<p class="mb-4 text-marine">"${story}"</p><button onclick="this.parentElement.remove()" class="text-[10px] font-black uppercase text-yellow-600">Fermer</button>`;
+            btn.closest('.group').querySelector('.aspect-square').appendChild(storyDiv);
+            
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        }
+
+        function addToCart() {
+            cart++;
+            const counter = document.getElementById('cart-count');
+            counter.innerText = cart;
+            counter.classList.remove('cart-pop');
+            void counter.offsetWidth;
+            counter.classList.add('cart-pop');
+
+            const notif = document.getElementById('notif');
+            notif.style.transform = "translateX(0)";
+            setTimeout(() => {
+                notif.style.transform = "translateX(25rem)";
+            }, 2000);
+        }
+
+        function render() {
+            const list = document.getElementById('product-list');
+            list.innerHTML = toys.map(t => `
+                <div class="group bg-white rounded-[2rem] p-4 border border-transparent hover:border-slate-100 transition shadow-sm hover:shadow-xl relative">
+                    <div class="aspect-square bg-slate-50 rounded-[1.5rem] overflow-hidden mb-6 relative">
+                        <img src="${t.img}" class="w-full h-full object-cover group-hover:scale-105 transition duration-700">
+                        <div class="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest text-marine shadow-sm">
+                            ${t.age}
+                        </div>
+                        <div class="absolute inset-0 bg-marine/10 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center p-4 space-y-2">
+                            <button onclick="addToCart()" class="w-full bg-marine text-white py-4 rounded-xl font-black text-[9px] uppercase tracking-widest shadow-2xl transform translate-y-4 group-hover:translate-y-0 transition-all">
+                                Panier — ${t.price}€
+                            </button>
+                            <button onclick="generateStory('${t.name}')" class="w-full bg-yellow-400 text-marine py-3 rounded-xl font-black text-[9px] uppercase tracking-widest shadow-xl transform translate-y-4 group-hover:translate-y-0 transition-all delay-75">
+                                Histoire Magique ✨
+                            </button>
+                        </div>
+                    </div>
+                    <div class="px-2">
+                        <span class="text-[9px] font-black uppercase text-yellow-600 tracking-widest">${t.cat}</span>
+                        <h3 class="font-bold text-lg text-marine group-hover:text-yellow-600 transition-colors uppercase leading-tight mt-1">${t.name}</h3>
+                        <p class="text-slate-400 font-bold mt-1 tracking-wider">${t.price},00 €</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        render();
+    </script>
+</body>
+</html>
