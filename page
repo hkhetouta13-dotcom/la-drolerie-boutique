@@ -1,0 +1,69 @@
+<!-- PAGE : CATALOGUE -->
+    <main id="page-catalog" class="page-content py-16 container mx-auto px-6">
+        <h2 class="text-4xl font-black text-marine uppercase mb-12">La Boutique</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8" id="product-grid">
+            <!-- Injecté par JS -->
+        </div>
+    </main>
+
+    <!-- PAGE : À PROPOS -->
+    <main id="page-about" class="page-content py-20 container mx-auto px-6 max-w-3xl">
+        <h2 class="text-4xl font-black text-marine uppercase mb-8">Notre Histoire</h2>
+        <div class="prose prose-slate text-slate-600 leading-relaxed space-y-4">
+            <p>Depuis 1992, La Drôlerie sélectionne des objets d'exception pour accompagner l'éveil des plus petits.</p>
+            <p>Notre philosophie est simple : moins de plastique, plus de rêves.</p>
+        </div>
+    </main>
+
+    <!-- PAGE : CONTACT -->
+    <main id="page-contact" class="page-content py-20 container mx-auto px-6 max-w-xl">
+        <h2 class="text-4xl font-black text-marine uppercase mb-8 text-center">Contactez-nous</h2>
+        <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
+            <div class="space-y-4">
+                <input type="text" placeholder="Votre nom" class="w-full p-4 bg-slate-50 rounded-xl outline-none focus:ring-2 ring-yellow-400">
+                <textarea placeholder="Votre message" class="w-full p-4 bg-slate-50 rounded-xl outline-none focus:ring-2 ring-yellow-400 h-32"></textarea>
+                <button class="w-full bg-marine text-white py-4 rounded-xl font-black uppercase text-xs tracking-widest">Envoyer</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER COMMUN -->
+    <footer class="bg-white border-t border-slate-100 py-12 text-center text-slate-400">
+        <p class="text-[10px] font-bold uppercase tracking-widest">© 2024 La Drôlerie — Paris</p>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Navigation intelligente
+        function showPage(pageId) {
+            // Cacher toutes les pages
+            document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
+            // Afficher la page cible
+            document.getElementById('page-' + pageId).classList.add('active');
+            // Remonter en haut
+            window.scrollTo(0, 0);
+        }
+
+        const toys = [
+            { id: 1, name: "Château Fort", price: 89, img: "https://images.unsplash.com/photo-1533234998069-3c998f48467e?auto=format&fit=crop&q=80&w=400" },
+            { id: 2, name: "Draisienne", price: 120, img: "https://images.unsplash.com/photo-1595188737299-c89b788c005f?auto=format&fit=crop&q=80&w=400" },
+            { id: 3, name: "Maison Bois", price: 145, img: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&q=80&w=400" },
+            { id: 4, name: "Xylophone", price: 34, img: "https://images.unsplash.com/photo-1610486524364-79357599052b?auto=format&fit=crop&q=80&w=400" }
+        ];
+
+        function renderProducts() {
+            const grid = document.getElementById('product-grid');
+            grid.innerHTML = toys.map(t => `
+                <div class="bg-white rounded-3xl p-4 shadow-sm border border-slate-50">
+                    <img src="${t.img}" class="w-full h-48 object-cover rounded-2xl mb-4">
+                    <h3 class="font-bold text-marine uppercase text-sm">${t.name}</h3>
+                    <p class="text-yellow-600 font-black">${t.price}€</p>
+                    <button class="w-full mt-4 bg-slate-900 text-white py-2 rounded-lg text-[10px] font-bold uppercase">Ajouter</button>
+                </div>
+            `).join('');
+        }
+
+        window.onload = renderProducts;
+    </script>
+</body>
+</html>
